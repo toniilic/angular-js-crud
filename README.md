@@ -11,8 +11,3 @@ Run the angular app
 Run the API
 
 	php -S localhost:8080
-
-
-
-Current
-8.1 Put "Edit" button in products list
