@@ -102,12 +102,128 @@ app.controller('productsController', function($scope, $mdDialog, $mdToast, produ
      
     }
      
-    // showUpdateProductForm will be here
+    // retrieve record to fill out the form
+    $scope.showUpdateProductForm = function(id){
+     
+        // get product to be edited
+        productsFactory.readOneProduct(id).then(function successCallback(response){
+     
+            // put the values in form
+            $scope.id = response.data.id;
+            $scope.name = response.data.name;
+            $scope.description = response.data.description;
+            $scope.price = response.data.price;
+     
+            $mdDialog.show({
+                controller: DialogController,
+                templateUrl: './app/products/update_product.template.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                clickOutsideToClose: true,
+                scope: $scope,
+                preserveScope: true,
+                fullscreen: true
+            }).then(
+                function(){},
+     
+                // user clicked 'Cancel'
+                function() {
+                    // clear modal content
+                    $scope.clearProductForm();
+                }
+            );
+     
+        }, function errorCallback(response){
+            $scope.showToast("Unable to retrieve record.");
+        });
+     
+    }
+     
+    // update product record / save changes
+    $scope.updateProduct = function(){
+     
+        productsFactory.updateProduct($scope).then(function successCallback(response){
+     
+            // tell the user product record was updated
+            $scope.showToast(response.data.message);
+     
+            // refresh the product list
+            $scope.readProducts();
+     
+            // close dialog
+            $scope.cancel();
+     
+            // clear modal content
+            $scope.clearProductForm();
+     
+        },
+        function errorCallback(response) {
+            $scope.showToast("Unable to update record.");
+        });
+     
+    }
+     
+    // cofirm product deletion
+    $scope.confirmDeleteProduct = function(event, id){
+     
+        // set id of record to delete
+        $scope.id = id;
+     
+        // dialog settings
+        var confirm = $mdDialog.confirm()
+            .title('Are you sure?')
+            .textContent('Product will be deleted.')
+            .targetEvent(event)
+            .ok('Yes')
+            .cancel('No');
+     
+        // show dialog
+        $mdDialog.show(confirm).then(
+            // 'Yes' button
+            function() {
+                // if user clicked 'Yes', delete product record
+                $scope.deleteProduct();
+            },
+     
+            // 'No' button
+            function() {
+                // hide dialog
+            }
+        );
+    }
      
     // methods for dialog box
     function DialogController($scope, $mdDialog) {
         $scope.cancel = function() {
             $mdDialog.cancel();
         };
+    }
+
+    // delete product
+    $scope.deleteProduct = function(){
+     
+        productsFactory.deleteProduct($scope.id).then(function successCallback(response){
+     
+            // tell the user product was deleted
+            $scope.showToast(response.data.message);
+     
+            // refresh the list
+            $scope.readProducts();
+     
+        }, function errorCallback(response){
+            $scope.showToast("Unable to delete record.");
+        });
+     
+    }
+     
+    // search products
+    $scope.searchProducts = function(){
+     
+        // use products factory
+        productsFactory.searchProducts($scope.product_search_keywords).then(function successCallback(response){
+            $scope.products = response.data.records;
+        }, function errorCallback(response){
+            $scope.showToast("Unable to read record.");
+        });
     }
 });

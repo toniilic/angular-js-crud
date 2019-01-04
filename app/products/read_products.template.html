@@ -16,7 +16,13 @@
             </div>
         </md-toolbar>
  
-        <!-- 'search' bar will be here -->
+        <!-- used for searching products in api -->
+        <md-input-container class="md-block m-b-0px">
+            <form ng-submit="searchProducts()">
+                <label>Search products...</label>
+                <input ng-model="product_search_keywords">
+            </form>
+        </md-input-container>
  
         <md-content flex>
             <!-- show product record list -->
@@ -33,8 +39,8 @@
                     <!-- 'read one', 'edit' and 'delete' buttons -->
                     <div class="md-secondary-container">
                         <md-button class="md-raised md-info" ng-click="readOneProduct(product.id)">Read One</md-button>
-                        <!-- 'edit' button will be here -->
-                        <!-- 'delete' button will be here -->
+                        <md-button class="md-raised md-primary" ng-click="showUpdateProductForm(product.id)">Edit</md-button>
+                        <md-button class="md-raised md-danger" ng-click="confirmDeleteProduct($event, product.id)">Delete</md-button>
                     </div>
                     <md-divider ng-if="!$last"></md-divider>
                 </md-list-item>
